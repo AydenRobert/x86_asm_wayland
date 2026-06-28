@@ -1,0 +1,25 @@
+#pragma once
+
+extern unsigned int wayland_display_object_id;
+extern unsigned short wayland_wl_registry_event_global;
+extern unsigned short wayland_shm_pool_event_format;
+extern unsigned short wayland_wl_buffer_event_release;
+extern unsigned short wayland_xdg_wm_base_event_ping;
+extern unsigned short wayland_xdg_toplevel_event_configure;
+extern unsigned short wayland_xdg_toplevel_event_close;
+extern unsigned short wayland_xdg_surface_event_configure;
+extern unsigned short wayland_wl_display_get_registry_opcode;
+extern unsigned short wayland_wl_registry_bind_opcode;
+extern unsigned short wayland_wl_compositor_create_surface_opcode;
+extern unsigned short wayland_xdg_wm_base_pong_opcode;
+extern unsigned short wayland_xdg_surface_ack_configure_opcode;
+extern unsigned short wayland_wl_shm_create_pool_opcode;
+extern unsigned short wayland_xdg_wm_base_get_xdg_surface_opcode;
+extern unsigned short wayland_wl_shm_pool_create_buffer_opcode;
+extern unsigned short wayland_wl_surface_attach_opcode;
+extern unsigned short wayland_xdg_surface_get_toplevel_opcode;
+extern unsigned short wayland_wl_surface_commit_opcode;
+extern unsigned short wayland_wl_display_error_event;
+extern unsigned int wayland_format_xrgb8888;
+extern unsigned int wayland_header_size;
+extern unsigned int color_channels;
