@@ -105,35 +105,49 @@ wayland_display_connect:
 	mov byte [rsp + 4 + rax], 47
 	inc rax
 
+	;   store xdg_runtime_dir_len
 	mov qword [r12 + 32], rax
 
+	;    mem copy pwayland_display
 	lea  rdi, [rsp + 4 + rax]
 	mov  rsi, [r12 + 16]
 	mov  rdx, rax
 	call mem_cpy
 
+	;   update len in memory
 	mov rax, qword [r12 + 24]
 	add rax, qword [r12 + 32]
 	mov qword [r12 + 32], rax
 
+	;   write zero byte
 	mov byte [rsp + 4 + rax], 0
 
+	;   int fd = socket(AF_UNIX, SOCK_STREAM, 0)
 	mov rax, 41
 	mov rdi, 1
 	mov rsi, 2
 	mov rdx, 0
-    syscall
+	syscall
 
-    push rax
+	cmp rax, 0
+	jge .Lwayland_display_connect_exit
 
-    mov rdi, rax
+	;    push fd to stack
+	push rax
+
+	;   connect to $(xdg_runtime_dir)/$(wayland_diplay)
+	mov rdi, rax
 	mov rax, 42
 	lea rsi, [rsp]
 	mov rdx, qword [r12 + 32]
-    add rdx, 4
+	add rdx, 4
 	syscall
 
-    pop rax
+	cmp rax, 0
+	jl  .Lwayland_display_connect_exit
+
+	;   return the file descriptor
+	pop rax
 
 	mov rsp, rbp
 	pop r12
@@ -141,9 +155,15 @@ wayland_display_connect:
 	ret
 
 .Lwayland_display_connect_ret_null:
+
 	mov rax, 0
 
 	mov rsp, rbp
 	pop r12
 	pop rbp
 	ret
+
+.Lwayland_display_connect_exit:
+
+	mov  rdi, rax
+	call _exit
