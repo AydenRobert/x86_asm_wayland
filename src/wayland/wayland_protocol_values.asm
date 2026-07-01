@@ -23,7 +23,7 @@ global  wayland_format_xrgb8888
 global  wayland_header_size
 global  color_channels
 
-wayland_display_object_id                   dq 1
+wayland_display_object_id                   dd 1
 wayland_wl_registry_event_global            dw 0
 wayland_shm_pool_event_format               dw 0
 wayland_wl_buffer_event_release             dw 0
@@ -43,6 +43,6 @@ wayland_wl_surface_attach_opcode            dw 1
 wayland_xdg_surface_get_toplevel_opcode     dw 1
 wayland_wl_surface_commit_opcode            dw 6
 wayland_wl_display_error_event              dw 0
-wayland_format_xrgb8888                     dq 1
-wayland_header_size                         dq 8
-color_channels                              dq 4
+wayland_format_xrgb8888                     dd 1
+wayland_header_size                         dd 8
+color_channels                              dd 4

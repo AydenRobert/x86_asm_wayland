@@ -3,6 +3,7 @@ extern cstring_len
 extern print
 extern print_line
 extern mem_cpy
+extern _exit
 
 segment .data
 
@@ -17,153 +18,115 @@ global wayland_display_connect
 	; int wayland_display_connect()
 
 wayland_display_connect:
-	push rbp
 	push r12
-	mov  rbp, rsp
+	push r13
+	push r14
+	push r15
+	push rbp
 
-	;   rsp      = pxdg_runtime_dir - char *
-	;   rsp + 8  = xdg_runtime_dir_len - uint64_t
-	;   rsp + 16 = pwayland_display - char *
-	;   rsp + 24 = wayland_display_default_len | wayland_display_len
-	;   rsp + 32 = socket_path_len
-	;   rsp + 48 = rbp
-	;   rbp pppppppp-xxxxxxxx xxxxxxxx-xxxxxxxx xxxxxxxx-xxxxxxxx
-	sub rsp, 48
+	mov rbp, rsp
 
-	;    getenv("XDG_RUNTIME_DIR")
+	sub rsp, 110
+
+	;    char *xdg_runtime_dir = get_env("XDG_RUNTIME_DIR")
 	lea  rdi, [rel xdg_rd_env_var]
 	call get_env
 
-	;   if null, ret 0
-	cmp rax, 0
-	je  .Lwayland_display_connect_ret_null
+	;     if (xdg_runtime_dir == 0) return EINVAL
+	test  rax, rax
+	mov   r12, 22
+	cmovz rax, r12
+	jz    .Lwayland_display_connect_ret
 
-	;   store char *
-	mov [rsp], rax
+	mov r12, rax; r12 = xdg_runtime_dir
 
-	;    get len
+	;    xdg_runtime_dir_len = cstring_len(xdg_runtime_dir)
 	mov  rdi, rax
 	call cstring_len
+	mov  r13, rax; r13 = xdg_runtime_dir_len
 
-	;   store len
-	mov [rsp + 8], rax
+	;   addr = {.sun_family = AF_UNIX}
+	mov [rsp], 1
 
-	;    getenv("WAYLAND_DISPLAY")
-	lea  rdi, [rel wayland_d_env_var]
-	call get_env
+	;    mem_cpy(addr.sun_path, xdg_runtime_dir, xdg_runtime_dir_len)
+	lea  rdi, [rsp + 2]
+	mov  rsi, r12
+	mov  rdx, r13
+	call mem_cpy
 
-	cmp rax, 0
-	jne .Lwayland_display_connect_wenv_not_null
+	;   socket_path_len = xdg_runtime_dir
+	mov r15, r13; r13 is free
 
-	;   return null, load default
-	lea rdi, [rel wayland_display_default]
+	;   addr.sun_path[socket_path_len++] = '/'
+	mov byte [rsp + 2 + r15], 47
+	inc r15
 
-	jmp .Lwayland_display_connect_wenv_get_len
+	;      char *wayland_display = get_env("WAYLAND_DISPLAY")
+	lea    rdi, [rel wayland_d_env_var]
+	call   get_env
+	lea    r13, [rel wayland_display_default]; r13 = wayland_display
+	test   rax, rax
+	cmovnz r13, rax
+	mov    r14, 9; r14 = wayland_display_len
+	jz     .Lwayland_display_connect_mem_cpy
 
-.Lwayland_display_connect_wenv_not_null:
-
-	;   return string, mov to rdi
-	mov rdi, rax
-
-.Lwayland_display_connect_wenv_get_len:
-
-	;   store pointer
-	mov [rsp + 16], rdi
-
-	;    get len
+	mov  rdi, rax
 	call cstring_len
+	mov  r14, rax
 
-	;   store len
-	mov [rsp + 24], rax
+.Lwayland_display_connect_mem_cpy:
 
-	; struct sockaddr_un {
-	; sa_family_t sun_family; -> unsigned int
-	; char sun_path[]
-	; }
-
-	;   back up rsp again
-	mov r12, rsp
-
-	mov rax, [rsp + 8]
-	add rax, [rsp + 24]
-	add rax, 8
-	add rax, 17; '/' + '\0' + rounding
-	and rax, 16
-
-	;   rsp = sun_family -> uint32_t
-	sub rsp, rax
-
-	mov dword [rsp], 1
-
-	lea  rdi, [rsp + 4]
-	mov  rsi, [r12]
-	mov  rdx, [r12 + 8]
+	;    mem_cpy(addr.sun_path + socket_path_len, wayland_display, wayland_display_len)
+	lea  rdi, [rsp + 2 + r15]
+	mov  rsi, r13
+	mov  rdx, r14
 	call mem_cpy
 
-	mov rax, [r12 + 8]
-	;   sun_path[xdg_runtime_dir_len++]
-	mov byte [rsp + 4 + rax], 47
-	inc rax
+	;   socket_path_len += wayland_display
+	add r15, r14; r12-14 are free
 
-	;   store xdg_runtime_dir_len
-	mov qword [r12 + 32], rax
+	mov byte [rsp + 2 + r15], 0
+	inc r15
 
-	;    mem copy pwayland_display
-	lea  rdi, [rsp + 4 + rax]
-	mov  rsi, [r12 + 16]
-	mov  rdx, rax
-	call mem_cpy
-
-	;   update len in memory
-	mov rax, qword [r12 + 24]
-	add rax, qword [r12 + 32]
-	mov qword [r12 + 32], rax
-
-	;   write zero byte
-	mov byte [rsp + 4 + rax], 0
+	add r15, 2
 
 	;   int fd = socket(AF_UNIX, SOCK_STREAM, 0)
-	mov rax, 41
-	mov rdi, 1
-	mov rsi, 2
+	mov rax, 41; SYS_socket
+	mov rdi, 1; AF_UNIX
+	mov rsi, 1; SOCK_STREAM
 	mov rdx, 0
-	syscall
-
-	cmp rax, 0
-	jge .Lwayland_display_connect_exit
-
-	;    push fd to stack
-	push rax
-
-	;   connect to $(xdg_runtime_dir)/$(wayland_diplay)
-	mov rdi, rax
-	mov rax, 42
-	lea rsi, [rsp]
-	mov rdx, qword [r12 + 32]
-	add rdx, 4
 	syscall
 
 	cmp rax, 0
 	jl  .Lwayland_display_connect_exit
 
-	;   return the file descriptor
-	pop rax
+	mov r12, rax; r12 = fd
+
+	;   connect(fd, addr, sizeof(addr))
+	mov rdi, rax
+	mov rax, 42; SYS_connect
+	lea rsi, [rsp]
+	mov rdx, r15
+	syscall
+
+	cmp rax, 0
+	jl  .Lwayland_display_connect_exit
+
+	mov rax, r12
+
+.Lwayland_display_connect_ret:
 
 	mov rsp, rbp
-	pop r12
+
 	pop rbp
-	ret
-
-.Lwayland_display_connect_ret_null:
-
-	mov rax, 0
-
-	mov rsp, rbp
+	pop r15
+	pop r14
+	pop r13
 	pop r12
-	pop rbp
+
 	ret
 
 .Lwayland_display_connect_exit:
 
-	mov  rdi, rax
+	mov  rdi, 1; TODO: figure out return codes
 	call _exit

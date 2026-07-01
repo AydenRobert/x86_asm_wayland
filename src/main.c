@@ -1,13 +1,12 @@
 extern void print(char *str, int len);
+extern void print_line();
+extern void print_li(long int x);
 extern int wayland_display_connect();
-extern void mem_cpy(void *dst, void *src, unsigned long len);
-extern int li_str(long int num, char *buffer, int buffer_len);
+
+extern unsigned int wayland_wl_display_get_registry(int fd);
 
 int main(int argc, char *argv[]) {
     int fd = wayland_display_connect();
-    char fd_str[20];
-    int fd_str_len = li_str(fd, fd_str, 20);
-    print(fd_str, fd_str_len);
-    print("\n", 1);
+    unsigned int id = wayland_wl_display_get_registry(fd);
     return 0;
 }
