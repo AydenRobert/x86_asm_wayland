@@ -1,9 +1,9 @@
 segment .text
-global  cstring_len_avx2
+global  _cstring_len_avx2
 
-	; int cstring_len_avx2(char *str)
+	; int _cstring_len_avx2(char *str)
 
-cstring_len_avx2:
+_cstring_len_avx2:
 
 	mov   eax, edi; eax hold lower half of address
 	mov   rdx, rdi; rdx holds full address

@@ -1,12 +1,21 @@
-extern void print(char *str, int len);
-extern void print_line();
-extern void print_li(long int x);
-extern int wayland_display_connect();
+#include "utils/aux.h"
 
-extern unsigned int wayland_wl_display_get_registry(int fd);
+extern char **ppenv;
+extern unsigned long int env_len;
+
+extern auxv_t *paux;
+extern unsigned long int aux_len;
+
+extern void print(char *str, int len);
+extern void print_li(long int num);
+extern void print_line();
+extern int cstring_len(char *str);
 
 int main(int argc, char *argv[]) {
-    int fd = wayland_display_connect();
-    unsigned int id = wayland_wl_display_get_registry(fd);
+    for (int i = 0; i < aux_len; i++) {
+        char *str = at_str_list[paux[i].a_type];
+        print(str, cstring_len(str));
+        print_line();
+    }
     return 0;
 }

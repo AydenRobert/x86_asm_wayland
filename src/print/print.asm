@@ -7,8 +7,8 @@ print:
 	mov rdx, rsi
 	mov rsi, rdi
 
-	mov rax, 1
-	mov rdi, 1
+	mov rax, 1; SYS_write
+	mov rdi, 1; STDOUT_FD
 	syscall
 
 	ret

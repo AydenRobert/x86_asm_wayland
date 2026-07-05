@@ -1,30 +1,31 @@
 extern main
 extern _exit
 
-segment .bss
+extern setup_env_aux
+extern enumerate_cpu_capabilities
 
-global penv
-
-	;    char** penv
-	penv resq 1
-
-	segment .text
-	global  _start
+segment .text
+global  _start
 
 _start:
 
 	;   rsp holds argc
 	;   rsp + 8 is the start of argv
-	mov rdi, [rsp]
-	lea rsi, [rsp + 8]
+	mov r12, [rsp]
+	lea r13, [rsp + 8]
 
-	;   save env ptr
-	lea rax, [rsp + rdi*8 + 16]
-	mov [rel penv], rax
+	;    call env/aux setup
+	lea  rdi, [rsp + r12*8 + 16]
+	call setup_env_aux
+
+    call enumerate_cpu_capabilities
 
 	;   align stack pointer
 	and rsp, -16
 	sub rsp, 8
+
+	mov rdi, r12
+	mov rsi, r13
 
 	;    Function:
 	;    main(int argc, char *argv[])

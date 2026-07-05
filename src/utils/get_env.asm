@@ -1,4 +1,4 @@
-extern penv
+extern ppenv
 extern cstring_index_of
 extern cstring_len
 extern str_cmp
@@ -9,7 +9,7 @@ global  get_env
 get_env:
 	push rbx
 
-	mov r9, [rel penv]
+	mov r9, [rel ppenv]
 	mov r10, rdi
 
 .Lget_env_loop_start:
