@@ -12,7 +12,7 @@ _cstring_len_avx2:
 	;   use lower half of address to see if near a page boundary
 	and eax, 0xFFF; page_size - 1
 	cmp eax, 0xFDF; page_size - vec_size
-	ja  .Lcstring_len_avx2_cross_page_boundary
+	ja  .cross_page_boundary
 
 	;         compare 0 bytes to char bytes in memory, store results in ymm1
 	vpcmpeqb  ymm1, ymm0, [rdi]
@@ -22,14 +22,14 @@ _cstring_len_avx2:
 	;    if eax is zero, we haven't found null terminator
 	xor  rcx, rcx
 	test eax, eax
-	jz   .Lcstring_len_avx2_initial_unloop
+	jz   .initial_unloop
 
 	;     count the trailing zeros, that is the length of the string
 	tzcnt eax, eax
 
 	ret
 
-.Lcstring_len_avx2_initial_unloop:
+.initial_unloop:
 
 	;  Align data to 32 bytes
 	or rdi, 0x1F
@@ -39,26 +39,26 @@ _cstring_len_avx2:
 	vpcmpeqb  ymm1, ymm0, [rdi + 0x01]
 	vpmovmskb eax, ymm1
 	test      eax, eax
-	jnz       .Lcstring_len_avx2_r0
+	jnz       .r0
 
 	vpcmpeqb  ymm1, ymm0, [rdi + 0x21]
 	vpmovmskb eax, ymm1
 	test      eax, eax
-	jnz       .Lcstring_len_avx2_r1
+	jnz       .r1
 
 	vpcmpeqb  ymm1, ymm0, [rdi + 0x41]
 	vpmovmskb eax, ymm1
 	test      eax, eax
-	jnz       .Lcstring_len_avx2_r2
+	jnz       .r2
 
 	vpcmpeqb  ymm1, ymm0, [rdi + 0x61]
 	vpmovmskb eax, ymm1
 	test      eax, eax
-	jnz       .Lcstring_len_avx2_r3
+	jnz       .r3
 
-	jmp .Lcstring_len_avx2_4x_loop
+	jmp .4x_loop
 
-.Lcstring_len_avx2_r0:
+.r0:
 
 	tzcnt eax, eax
 	add   rax, rdi
@@ -67,38 +67,38 @@ _cstring_len_avx2:
 
 	ret
 
-.Lcstring_len_avx2_r1:
+.r1:
 
 	tzcnt eax, eax
 	add   rax, rdi
 	sub   rax, rdx
-    add   rax, 0x21
+	add   rax, 0x21
 
 	ret
 
-.Lcstring_len_avx2_r2:
+.r2:
 
 	tzcnt eax, eax
 	add   rax, rdi
 	sub   rax, rdx
-    add   rax, 0x41
+	add   rax, 0x41
 
 	ret
 
-.Lcstring_len_avx2_r3:
+.r3:
 
 	tzcnt eax, eax
 	add   rax, rdi
 	sub   rax, rdx
-    add   rax, 0x61
+	add   rax, 0x61
 
 	ret
 
-.Lcstring_len_avx2_4x_loop:
+.4x_loop:
 
-	or  rdi, 0x7F; vec_size * 4 - 1
+	or rdi, 0x7F; vec_size * 4 - 1
 
-.Lcstring_len_avx2_cross_page_continue:
+.cross_page_continue:
 
 	vmovdqa ymm1, [rdi + 0x01]
 	vpminub ymm2, ymm1, [rdi + 0x21]
@@ -111,19 +111,19 @@ _cstring_len_avx2:
 
 	sub  rdi, -0x80
 	test ecx, ecx
-	jz   .Lcstring_len_avx2_4x_loop
+	jz   .4x_loop
 
-.Lcstring_len_avx2_4x_check:
+.4x_check:
 
 	vpcmpeqb  ymm1, ymm1, ymm0
 	vpmovmskb eax, ymm1
 	test      eax, eax
-	jnz       .Lcstring_len_avx2_4x_r0
+	jnz       .4x_r0
 
 	vpcmpeqb  ymm2, ymm2, ymm0
 	vpmovmskb eax, ymm2
 	test      eax, eax
-	jnz       .Lcstring_len_avx2_4x_r1
+	jnz       .4x_r1
 
 	vpcmpeqb  ymm3, ymm3, ymm0
 	vpmovmskb eax, ymm3
@@ -138,7 +138,7 @@ _cstring_len_avx2:
 
 	ret
 
-.Lcstring_len_avx2_4x_r0:
+.4x_r0:
 
 	tzcnt eax, eax
 	sub   rdi, 0x7F
@@ -147,7 +147,7 @@ _cstring_len_avx2:
 
 	ret
 
-.Lcstring_len_avx2_4x_r1:
+.4x_r1:
 
 	tzcnt eax, eax
 	sub   rdi, 0x5F
@@ -156,7 +156,7 @@ _cstring_len_avx2:
 
 	ret
 
-.Lcstring_len_avx2_cross_page_boundary:
+.cross_page_boundary:
 
 	;         align backwards to 32 bytes
 	or        rdi, 0x1F
@@ -170,7 +170,7 @@ _cstring_len_avx2:
 
 	;     if there isn't a match, continue with usual path
 	test  eax, eax
-	jz    .Lcstring_len_avx2_cross_page_continue
+	jz    .cross_page_continue
 	tzcnt eax, eax
 
 	ret

@@ -85,21 +85,20 @@ wayland_wl_display_get_registry:
 
 	;   if (msg_size != send(...)) exit(errno)
 	cmp rax, [rsp]
-	jne  .Lwayland_wl_display_get_registry_exit
+	jne .exit
 
-    lea rdi, [rel prstr1]
-    mov rsi, 14
+	lea  rdi, [rel prstr1]
+	mov  rsi, 14
 	call print
 
-    mov rdi, [rel wayland_display_object_id]
+	mov  rdi, [rel wayland_display_object_id]
 	call print_li
 
-    
-    lea rdi, [rel prstr2]
-    mov rsi, 27
+	lea  rdi, [rel prstr2]
+	mov  rsi, 27
 	call print
 
-    mov edi, dword [rel wayland_current_id]
+	mov  edi, dword [rel wayland_current_id]
 	call print_li
 
 	call print_line
@@ -113,7 +112,7 @@ wayland_wl_display_get_registry:
 
 	ret
 
-.Lwayland_wl_display_get_registry_exit:
+.exit:
 
 	mov  rdi, 1
 	call _exit

@@ -12,13 +12,13 @@ get_env:
 	mov r9, [rel ppenv]
 	mov r10, rdi
 
-.Lget_env_loop_start:
+.loop_start:
 
 	mov rdi, [r9]
 	mov r11, rdi
 
 	cmp rdi, 0
-	je  .Lget_env_loop_end
+	je  .loop_end
 
 	mov  rsi, 61
 	call cstring_index_of
@@ -29,7 +29,7 @@ get_env:
 	call cstring_len
 
 	cmp rax, rbx
-	jne .Lget_env_loop_inc
+	jne .loop_inc
 
 	mov  rdi, r10
 	mov  rsi, r11
@@ -37,21 +37,21 @@ get_env:
 	call str_cmp
 
 	cmp rax, 0
-	jne .Lget_env_loop_inc
+	jne .loop_inc
 
 	mov rax, r11
-    add rax, rbx
-    inc rax
+	add rax, rbx
+	inc rax
 
 	pop rbx
 	ret
 
-.Lget_env_loop_inc:
+.loop_inc:
 
 	add r9, 8
-	jmp .Lget_env_loop_start
+	jmp .loop_start
 
-.Lget_env_loop_end:
+.loop_end:
 
 	mov rax, 0
 

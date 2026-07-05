@@ -14,7 +14,7 @@ buf_write_u32:
 	mov rax, [rsi]
 	add rax, r8
 	cmp rax, rdx
-	jg  .Lbuf_write_u32_exit
+	jg  .exit
 
 	push rdx
 	xor  rdx, rdx
@@ -24,7 +24,7 @@ buf_write_u32:
 	add rax, [rsi]
 	div r8
 	cmp rdx, 0
-	jne .Lbuf_write_u32_exit
+	jne .exit
 
 	pop rdx
 
@@ -36,9 +36,9 @@ buf_write_u32:
 	;   *buf_size += sizeof(x)
 	add [rsi], r8
 
-    ret
+	ret
 
-.Lbuf_write_u32_exit:
+.exit:
 
 	mov  rdi, 1
 	call _exit

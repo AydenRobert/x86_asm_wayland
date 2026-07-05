@@ -11,7 +11,7 @@ buf_read_n:
 
 	mov rax, [rsi]
 	cmp rax, rcx
-	jl  .Lbuf_read_n_exit
+	jl  .exit
 
 	push rdi
 	push rsi
@@ -23,15 +23,15 @@ buf_read_n:
 	call mem_cpy
 
 	pop rcx
-	pop  rsi
-	pop  rdi
+	pop rsi
+	pop rdi
 
 	add [rdi], rcx
 	sub [rsi], rcx
 
 	ret
 
-.Lbuf_read_n_exit:
+.exit:
 
 	mov  rdi, 1
 	call _exit

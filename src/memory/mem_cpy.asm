@@ -5,19 +5,19 @@ global  mem_cpy
 
 mem_cpy:
 
-.Lmem_cpy_loop_start:
+.loop_start:
 
 	cmp rdx, 0
-	je  .Lmem_cpy_loop_end
+	je  .loop_end
 
-	mov     cl, byte [rsi]
-	mov     byte [rdi], cl
+	mov cl, byte [rsi]
+	mov byte [rdi], cl
 
-    inc rdi
-    inc rsi
+	inc rdi
+	inc rsi
 	dec rdx
-	jmp .Lmem_cpy_loop_start
+	jmp .loop_start
 
-.Lmem_cpy_loop_end:
+.loop_end:
 
 	ret

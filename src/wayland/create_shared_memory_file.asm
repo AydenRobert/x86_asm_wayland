@@ -23,7 +23,7 @@ create_shared_memory_file:
 	syscall
 
 	test rax, rax
-	js   .create_shared_memory_file_exit
+	js   .exit
 	mov  r12d, eax
 
 	;   ftruncate(fd, size)
@@ -33,7 +33,7 @@ create_shared_memory_file:
 	syscall
 
 	test rax, rax
-	js   .create_shared_memory_file_exit
+	js   .exit
 
 	;   mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0)
 	mov eax, 9
@@ -46,7 +46,7 @@ create_shared_memory_file:
 	syscall
 
 	test rax, rax
-	js   .create_shared_memory_file_exit
+	js   .exit
 
 	; mapped address in rax
 
@@ -55,7 +55,7 @@ create_shared_memory_file:
 
 	ret
 
-.create_shared_memory_file_exit:
+.exit:
 
 	mov  rdi, 1
 	call _exit

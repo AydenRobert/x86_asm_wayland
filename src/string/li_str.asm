@@ -10,14 +10,14 @@ li_str:
 	mov  rbp, rsp
 
 	cmp rdi, 0
-	jne .Lli_str_setup_start
+	jne .setup_start
 
 	mov [rsi], 48
 	mov rcx, 1
 
-	jmp .Lli_str_reverse_end
+	jmp .reverse_end
 
-.Lli_str_setup_start:
+.setup_start:
 
 	;   setup counter
 	mov rcx, 0
@@ -46,15 +46,15 @@ li_str:
 	;   r10 will be the pointer to the current char
 	mov r10, rsi
 
-.Lli_str_loop_start:
+.loop_start:
 
 	;   if at end of buffer
 	cmp rcx, r8
-	jz  .Lli_str_loop_end
+	jz  .loop_end
 
 	;   if finished writing number
 	cmp rax, 0
-	jz  .Lli_str_loop_end
+	jz  .loop_end
 
 	;   num / 10
 	xor rdx, rdx
@@ -68,25 +68,25 @@ li_str:
 	inc r10
 	inc rcx
 
-	jmp .Lli_str_loop_start
+	jmp .loop_start
 
-.Lli_str_loop_end:
+.loop_end:
 
 	dec r10
 	mov r12, rsi
 
 	;   place negative symbol at the end
 	cmp r9, 0
-	je  .Lli_str_reverse_start
+	je  .reverse_start
 	inc r10
 	inc rcx
 	mov [r10], 45
 
-.Lli_str_reverse_start:
+.reverse_start:
 
 	;   if (start >= end)
 	cmp rsi, r10
-	jge .Lli_str_reverse_end
+	jge .reverse_end
 
 	mov  r9b, byte [rsi]
 	xchg r9b, byte [r10]
@@ -95,9 +95,9 @@ li_str:
 	inc rsi
 	dec r10
 
-	jmp .Lli_str_reverse_start
+	jmp .reverse_start
 
-.Lli_str_reverse_end:
+.reverse_end:
 
 	mov rax, rcx
 

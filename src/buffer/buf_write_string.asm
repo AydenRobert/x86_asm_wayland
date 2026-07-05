@@ -13,7 +13,7 @@ buf_write_string:
 	mov rax, [rsi]
 	add rax, r8
 	cmp rax, rdx
-	jg  .Lbuf_write_string_exit
+	jg  .exit
 
 	;    save registers
 	push rdi
@@ -49,9 +49,9 @@ buf_write_string:
 
 	add [rdi], rsi
 
-    ret
+	ret
 
-.Lbuf_write_string_exit:
+.exit:
 
 	mov  rdi, 1
 	call _exit

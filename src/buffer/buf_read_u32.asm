@@ -11,22 +11,22 @@ buf_read_u32:
 
 	mov rax, [rsi]
 	cmp rax, r8
-	jl  .Lbuf_read_u32_exit
+	jl  .exit
 
 	xor rdx, rdx
 	mov rax, [rdi]
 	div r8
 	cmp rdx, 0
-    jne .Lbuf_read_u32_exit
+	jne .exit
 
-    mov rax, [rdi]
-    mov eax, dword [rax]
-    add [rdi], r8
-    sub [rsi], r8
+	mov rax, [rdi]
+	mov eax, dword [rax]
+	add [rdi], r8
+	sub [rsi], r8
 
-    ret
+	ret
 
-.Lbuf_read_u32_exit:
+.exit:
 
 	mov  rdi, 1
 	call _exit

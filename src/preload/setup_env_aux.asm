@@ -14,18 +14,16 @@ setup_env_aux:
 	mov rax, rdi
 	mov [rel ppenv], rax
 
-	; TODO: move to own function
-
 	;   get env len
 	xor rcx, rcx
 	mov rdx, rax
 	sub rax, 8
 
-.L_start_env_loop:
+.env_loop:
 
 	add rax, 8
 	cmp rcx, [rax]
-	jne .L_start_env_loop
+	jne .env_loop
 
 	mov r8, rax
 
@@ -37,18 +35,16 @@ setup_env_aux:
 	lea rax, [r8 + 8]
 	mov [rel paux], rax
 
-	; TODO: move to own function
-
 	;   get aux len
 	xor rcx, rcx
 	mov rdx, rax
 	sub rax, 16
 
-.L_start_aux_loop:
+.aux_loop:
 
 	add rax, 16
 	cmp rcx, qword [rax]
-	jne .L_start_aux_loop
+	jne .aux_loop
 
 	sub rax, rdx
 	shr rax, 4

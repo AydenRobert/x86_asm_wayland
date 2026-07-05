@@ -6,18 +6,18 @@ global  cstring_index_of
 cstring_index_of:
 	xor eax, eax
 
-.Lcstring_index_of_loop_start:
+.loop_start:
 	cmp byte [rdi], 0
-	je  .Lcstring_index_of_null
+	je  .null
 	cmp byte [rdi], sil
-	je  .Lcstring_index_of_loop_end
+	je  .loop_end
 	inc rdi
 	inc eax
-	jmp .Lcstring_index_of_loop_start
+	jmp .loop_start
 
-.Lcstring_index_of_null:
+.null:
 	mov eax, -1
 
-.Lcstring_index_of_loop_end:
+.loop_end:
 
 	ret

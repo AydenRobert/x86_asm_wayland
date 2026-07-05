@@ -36,7 +36,7 @@ wayland_display_connect:
 	test  rax, rax
 	mov   r12, 22
 	cmovz rax, r12
-	jz    .Lwayland_display_connect_ret
+	jz    .ret
 
 	mov r12, rax; r12 = xdg_runtime_dir
 
@@ -68,13 +68,13 @@ wayland_display_connect:
 	test   rax, rax
 	cmovnz r13, rax
 	mov    r14, 9; r14 = wayland_display_len
-	jz     .Lwayland_display_connect_mem_cpy
+	jz     .mem_cpy
 
 	mov  rdi, rax
 	call cstring_len
 	mov  r14, rax
 
-.Lwayland_display_connect_mem_cpy:
+.mem_cpy:
 
 	;    mem_cpy(addr.sun_path + socket_path_len, wayland_display, wayland_display_len)
 	lea  rdi, [rsp + 2 + r15]
@@ -98,7 +98,7 @@ wayland_display_connect:
 	syscall
 
 	cmp rax, 0
-	jl  .Lwayland_display_connect_exit
+	jl  .exit
 
 	mov r12, rax; r12 = fd
 
@@ -110,11 +110,11 @@ wayland_display_connect:
 	syscall
 
 	cmp rax, 0
-	jl  .Lwayland_display_connect_exit
+	jl  .exit
 
 	mov rax, r12
 
-.Lwayland_display_connect_ret:
+.ret:
 
 	mov rsp, rbp
 
@@ -126,7 +126,7 @@ wayland_display_connect:
 
 	ret
 
-.Lwayland_display_connect_exit:
+.exit:
 
 	mov  rdi, 1; TODO: figure out return codes
 	call _exit

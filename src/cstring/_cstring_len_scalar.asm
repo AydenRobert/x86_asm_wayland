@@ -6,13 +6,13 @@ global  _cstring_len_scalar
 _cstring_len_scalar:
 	xor eax, eax
 
-.Lcstring_len_loop_start:
+.loop_start:
 	cmp byte [rdi], 0
-	je  .Lcstring_len_loop_end
+	je  .loop_end
 	inc rdi
 	inc eax
-	jmp .Lcstring_len_loop_start
+	jmp .loop_start
 
-.Lcstring_len_loop_end:
+.loop_end:
 
 	ret

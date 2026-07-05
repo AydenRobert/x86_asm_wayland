@@ -16,6 +16,8 @@ global enumerate_cpu_capabilities
 enumerate_cpu_capabilities:
 
 	call is_cpuid_supported
+	cmp  rax, 0
+	je   .exit
 
 	mov eax, 0x7
 	xor ecx, ecx
@@ -35,7 +37,7 @@ enumerate_cpu_capabilities:
 
 	ret
 
-.Lenumerate_cpu_capabilities_exit:
+.exit:
 
 	mov  rdi, 1
 	call _exit

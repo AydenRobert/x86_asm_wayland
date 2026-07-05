@@ -8,20 +8,20 @@ is_cpuid_supported:
 	pushfq
 	mov r15, [rsp]
 	bts qword [rsp], 21
-	jnc .Lis_cpuid_supported_skip
+	jnc .skip
 	btr qword [rsp], 21
 
-.Lis_cpuid_supported_skip:
+.skip:
 
 	popfq
 
 	mov  rax, 1
 	pushfq
 	test [rsp], r15
-	jnz  .Lis_cpuid_supported_done
+	jnz  .done
 	mov  rax, 0
 
-.Lis_cpuid_supported_done:
+.done:
 
 	mov [rsp], r15
 	popfq
