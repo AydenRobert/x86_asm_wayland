@@ -1,21 +1,11 @@
-#include "utils/aux.h"
-
-extern char **ppenv;
-extern unsigned long int env_len;
-
-extern auxv_t *paux;
-extern unsigned long int aux_len;
-
-extern void print(char *str, int len);
-extern void print_li(long int num);
-extern void print_line();
-extern int cstring_len(char *str);
+extern int wayland_display_connect();
+extern unsigned int wayland_wl_display_get_registry(int fd);
+extern void *create_shared_memory_file(long int size);
 
 int main(int argc, char *argv[]) {
-    for (int i = 0; i < aux_len; i++) {
-        char *str = at_str_list[paux[i].a_type];
-        print(str, cstring_len(str));
-        print_line();
-    }
+    int fd = wayland_display_connect();
+    unsigned int id = wayland_wl_display_get_registry(fd);
+    void *memory = create_shared_memory_file(1024 * 1024);
+
     return 0;
 }

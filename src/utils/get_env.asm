@@ -1,10 +1,12 @@
 extern ppenv
 extern cstring_index_of
 extern cstring_len
-extern str_cmp
+extern mem_cmp
 
 segment .text
 global  get_env
+
+; char *get_env(char *str)
 
 get_env:
 	push rbx
@@ -31,10 +33,14 @@ get_env:
 	cmp rax, rbx
 	jne .loop_inc
 
+    push r9
+
 	mov  rdi, r10
 	mov  rsi, r11
 	mov  rdx, rbx
-	call str_cmp
+	call mem_cmp
+
+    pop r9
 
 	cmp rax, 0
 	jne .loop_inc
