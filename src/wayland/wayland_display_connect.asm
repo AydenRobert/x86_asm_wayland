@@ -4,6 +4,8 @@ extern print
 extern print_line
 extern mem_cpy
 extern _exit
+extern get_errno
+extern set_errno
 
 segment .data
 
@@ -97,6 +99,9 @@ wayland_display_connect:
 	mov rdx, 0
 	syscall
 
+    mov rdi, rax
+    call set_errno
+
 	cmp rax, 0
 	jl  .exit
 
@@ -108,6 +113,9 @@ wayland_display_connect:
 	lea rsi, [rsp]
 	mov rdx, r15
 	syscall
+
+    mov rdi, rax
+    call set_errno
 
 	cmp rax, 0
 	jl  .exit
@@ -128,5 +136,7 @@ wayland_display_connect:
 
 .exit:
 
-	mov  rdi, 1; TODO: figure out return codes
+    call get_errno
+
+	mov  rdi, rax
 	call _exit

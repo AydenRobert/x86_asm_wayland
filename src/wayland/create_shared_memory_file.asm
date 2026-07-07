@@ -2,6 +2,8 @@
 
 extern _exit
 extern wayland_state
+extern get_errno
+extern set_errno
 
 segment .data
 memory_file_name db "shm", 0
@@ -25,6 +27,9 @@ create_shared_memory_file:
 	mov rsi, 0
 	syscall
 
+	mov  rdi, rax
+	call set_errno
+
 	test rax, rax
 	js   .exit
 	mov  r12d, eax
@@ -34,6 +39,9 @@ create_shared_memory_file:
 	mov edi, r12d
 	mov rsi, r13
 	syscall
+
+	mov  rdi, rax
+	call set_errno
 
 	test rax, rax
 	js   .exit
@@ -47,6 +55,9 @@ create_shared_memory_file:
 	mov r8, r12
 	xor r9, r9
 	syscall
+
+	mov  rdi, rax
+	call set_errno
 
 	test rax, rax
 	js   .exit
@@ -62,6 +73,8 @@ create_shared_memory_file:
 	ret
 
 .exit:
+    
+    call get_errno
 
-	mov  rdi, 1
+	mov  rdi, rax
 	call _exit

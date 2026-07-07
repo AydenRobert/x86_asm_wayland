@@ -1,3 +1,6 @@
+extern set_errno
+extern get_errno
+
 extern buf_write_u32
 extern buf_write_u16
 
@@ -83,6 +86,9 @@ wayland_wl_display_get_registry:
 	xor r9d, r9d
 	syscall
 
+    mov rdi, rax
+    call set_errno
+
 	;   if (msg_size != send(...)) exit(errno)
 	cmp rax, [rsp]
 	jne .exit
@@ -114,5 +120,7 @@ wayland_wl_display_get_registry:
 
 .exit:
 
-	mov  rdi, 1
+    call get_errno
+
+	mov  rdi, rax
 	call _exit

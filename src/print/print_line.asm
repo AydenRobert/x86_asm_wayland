@@ -1,3 +1,5 @@
+extern set_errno
+
 segment .data
 newline_char db 10
 
@@ -12,5 +14,8 @@ print_line:
 	lea rsi, [rel newline_char]
 	mov rdx, 1
 	syscall
+
+    mov rdi, rax
+    call set_errno
 
 	ret

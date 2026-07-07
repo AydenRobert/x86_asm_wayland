@@ -1,3 +1,5 @@
+extern set_errno
+
 global recv
 
 segment .text
@@ -10,5 +12,8 @@ recv:
 	mov r8, 0
 	mov r9, 0
 	syscall
+
+    mov rdi, rax
+    call set_errno
 
 	ret
