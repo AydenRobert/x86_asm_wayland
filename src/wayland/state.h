@@ -27,3 +27,5 @@ typedef struct {
 
     state_state_t state;
 } state_t;
+
+extern state_t wayland_state;

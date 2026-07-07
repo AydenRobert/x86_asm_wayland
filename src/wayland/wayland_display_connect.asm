@@ -46,7 +46,7 @@ wayland_display_connect:
 	mov  r13, rax; r13 = xdg_runtime_dir_len
 
 	;   addr = {.sun_family = AF_UNIX}
-	mov [rsp], 1
+	mov dword [rsp], 1
 
 	;    mem_cpy(addr.sun_path, xdg_runtime_dir, xdg_runtime_dir_len)
 	lea  rdi, [rsp + 2]

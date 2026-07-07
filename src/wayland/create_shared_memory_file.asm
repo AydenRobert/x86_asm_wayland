@@ -1,4 +1,7 @@
+%include "src/wayland/state.inc"
+
 extern _exit
+extern wayland_state
 
 segment .data
 memory_file_name db "shm", 0
@@ -6,7 +9,7 @@ memory_file_name db "shm", 0
 segment .text
 global  create_shared_memory_file
 
-	; void *create_shared_memory_file(long int size)
+	; void create_shared_memory_file(long int size)
 
 create_shared_memory_file:
 
@@ -48,7 +51,10 @@ create_shared_memory_file:
 	test rax, rax
 	js   .exit
 
-	; mapped address in rax
+	;   mapped address in rax
+	mov qword [rel wayland_state + Wayland_State.shm_pool_data], rax
+	;   fd in r13d
+	mov dword [rel wayland_state + Wayland_State.shm_fd], r13d
 
 	pop r13
 	pop r12
