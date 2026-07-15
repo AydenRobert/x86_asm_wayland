@@ -14,3 +14,4 @@ I've used a few resources during this project:
 - [x64 Cheat Sheet](https://cs.brown.edu/courses/cs033/docs/guides/x64_cheatsheet.pdf)
 - [System V Application Binary Interface: AMD64 Architecture Processor Supplement](https://refspecs.linuxbase.org/elf/x86_64-abi-0.99.pdf)
 - [x86-64 ABI Mug](https://shop.compiler-explorer.com/en-aud/products/x86-64-abi-mug)
+- [Malloc tutorial | danluu](https://danluu.com/malloc-tutorial/)
