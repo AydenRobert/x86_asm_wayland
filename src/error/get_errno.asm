@@ -6,6 +6,6 @@ segment .text
 
 get_errno:
 
-	mov rax, [rel errno]
+	mov eax, dword [rel errno]
 
 	ret
