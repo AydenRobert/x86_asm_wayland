@@ -8,10 +8,10 @@ segment .text
 
 set_errno:
 
-	xor   rsi, rsi
-	cmp   rdi, 0
-	cmovl rdi, rsi
-	neg   rdi
-	mov   [rel errno], rdi
+	mov   esi, edi
+	neg   esi
+	cmp   edi, 0
+	cmovl edi, esi
+	mov   dword [rel errno], edi
 
 	ret
