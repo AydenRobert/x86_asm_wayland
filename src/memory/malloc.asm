@@ -70,6 +70,9 @@ malloc:
 	;    get memory
 	call sbrk
 
+	cmp rax, -1
+	je  .Lret_null
+
 	;   set meta data
 	mov qword [r8 + Meta_Block.next], rax
 	mov qword [rax + Meta_Block.block_size], r12
@@ -94,6 +97,9 @@ malloc:
 	;    get memory
 	call sbrk
 
+	cmp rax, -1
+	je  .Lret_null
+
 	;   set meta data
 	mov qword [rel malloc_base], rax
 	mov qword [rax + Meta_Block.block_size], r12
@@ -103,6 +109,11 @@ malloc:
 	;   return pointer to memory
 	add rax, Meta_Block_size
 	pop r12
+	ret
+
+.Lret_null:
+
+	mov rax, 0
 	ret
 
 global free
@@ -139,7 +150,7 @@ free:
 
 .Lfree:
 
-    mov dword [r8 + Meta_Block.free], 0
+	mov dword [r8 + Meta_Block.free], 0
 
 .Lret:
 
