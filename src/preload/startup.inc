@@ -1,0 +1,3 @@
+extern setup_env
+extern setup_aux
+extern enumerate_cpu_capabilities

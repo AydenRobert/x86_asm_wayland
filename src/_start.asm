@@ -1,8 +1,7 @@
 extern main
 extern _exit
 
-extern setup_env_aux
-extern enumerate_cpu_capabilities
+%include "src/preload/startup.inc"
 
 segment .text
 global  _start
@@ -14,18 +13,22 @@ _start:
 	mov r12, [rsp]
 	lea r13, [rsp + 8]
 
-	;    call env/aux setup
+	;    call env setup
 	lea  rdi, [rsp + r12*8 + 16]
-	call setup_env_aux
+	mov  r14, rdi
+	call setup_env
 
-    call enumerate_cpu_capabilities
+    lea rdi, [rax + 8]
+	call setup_aux
+
+	call enumerate_cpu_capabilities
 
 	;   align stack pointer
 	and rsp, -16
 	sub rsp, 8
 
-	mov rdi, r12
-	mov rsi, r13
+	mov rdi, [rsp]
+	mov rsi, [rsp + 8]
 
 	;    Function:
 	;    main(int argc, char *argv[])
