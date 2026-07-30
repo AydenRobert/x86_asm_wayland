@@ -1,3 +1,5 @@
+%include "src/syscall/syscall_macros.inc"
+
 extern set_errno
 extern get_errno
 
@@ -77,7 +79,7 @@ wayland_wl_display_get_registry:
 	call buf_write_u32
 
 	;   send(fd, msg, msg_size, MSG_DONTWAIT)
-	mov eax, 44
+	mov eax, SYS_SENDTO
 	mov edi, r12d; int fd
 	lea rsi, [rsp + 8]; char *msg
 	mov rdx, [rsp]; size_t len

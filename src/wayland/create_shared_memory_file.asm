@@ -1,3 +1,5 @@
+%include "src/syscall/syscall_macros.inc"
+
 %include "src/wayland/state.inc"
 
 extern _exit
@@ -22,7 +24,7 @@ create_shared_memory_file:
 	mov r13, rdi
 
 	;   memfd_create("shm", 0)
-	mov eax, 319; memfd_create
+	mov eax, SYS_MEMFD_CREATE; memfd_create
 	lea rdi, [rel memory_file_name]
 	mov rsi, 0
 	syscall
@@ -35,7 +37,7 @@ create_shared_memory_file:
 	mov  r12d, eax
 
 	;   ftruncate(fd, size)
-	mov eax, 77; ftruncate
+	mov eax, SYS_FTRUNCATE; ftruncate
 	mov edi, r12d
 	mov rsi, r13
 	syscall
@@ -47,7 +49,7 @@ create_shared_memory_file:
 	js   .exit
 
 	;   mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0)
-	mov eax, 9
+	mov eax, SYS_MMAP
 	xor rdi, rdi
 	mov rsi, r13
 	mov rdx, 0b11; PROT_READ | PROT_WRITE

@@ -1,5 +1,7 @@
+%include "src/syscall/syscall_macros.inc"
+
 extern get_env
-extern cstring_len
+extern strlen
 extern print
 extern print_line
 extern mem_cpy
@@ -42,9 +44,9 @@ wayland_display_connect:
 
 	mov r12, rax; r12 = xdg_runtime_dir
 
-	;    xdg_runtime_dir_len = cstring_len(xdg_runtime_dir)
+	;    xdg_runtime_dir_len = strlen(xdg_runtime_dir)
 	mov  rdi, rax
-	call cstring_len
+	call strlen
 	mov  r13, rax; r13 = xdg_runtime_dir_len
 
 	;   addr = {.sun_family = AF_UNIX}
@@ -73,7 +75,7 @@ wayland_display_connect:
 	jz     .mem_cpy
 
 	mov  rdi, rax
-	call cstring_len
+	call strlen
 	mov  r14, rax
 
 .mem_cpy:
@@ -93,7 +95,7 @@ wayland_display_connect:
 	add r15, 2
 
 	;   int fd = socket(AF_UNIX, SOCK_STREAM, 0)
-	mov rax, 41; SYS_socket
+	mov rax, SYS_SOCKET; SYS_socket
 	mov rdi, 1; AF_UNIX
 	mov rsi, 1; SOCK_STREAM
 	mov rdx, 0
@@ -109,7 +111,7 @@ wayland_display_connect:
 
 	;   connect(fd, addr, sizeof(addr))
 	mov rdi, rax
-	mov rax, 42; SYS_connect
+	mov rax, SYS_CONNECT; SYS_connect
 	lea rsi, [rsp]
 	mov rdx, r15
 	syscall
