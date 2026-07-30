@@ -1,6 +1,6 @@
 extern ppenv
-extern cstring_index_of
-extern cstring_len
+extern strchr
+extern strlen
 extern mem_cmp
 
 segment .text
@@ -10,6 +10,7 @@ global  get_env
 
 get_env:
 	push rbx
+    push r12
 
 	mov r9, [rel ppenv]
 	mov r10, rdi
@@ -17,18 +18,19 @@ get_env:
 .loop_start:
 
 	mov rdi, [r9]
-	mov r11, rdi
+	mov r12, rdi
 
 	cmp rdi, 0
 	je  .loop_end
 
 	mov  rsi, 61
-	call cstring_index_of
+	call strchr
 
+    sub rax, r12
 	mov rbx, rax
 
 	mov  rdi, r10
-	call cstring_len
+	call strlen
 
 	cmp rax, rbx
 	jne .loop_inc
@@ -49,6 +51,7 @@ get_env:
 	add rax, rbx
 	inc rax
 
+    pop r12
 	pop rbx
 	ret
 
@@ -61,5 +64,6 @@ get_env:
 
 	mov rax, 0
 
+    pop r12
 	pop rbx
 	ret

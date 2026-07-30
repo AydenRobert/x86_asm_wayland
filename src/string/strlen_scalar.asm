@@ -1,9 +1,9 @@
 segment .text
-global  _cstring_len_scalar
+global  _strlen_scalar
 
-	; int _cstring_len_scalar(char *str)
+	; int _strlen_scalar(char *str)
 
-_cstring_len_scalar:
+_strlen_scalar:
 	xor eax, eax
 
 .loop_start:

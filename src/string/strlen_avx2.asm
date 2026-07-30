@@ -1,17 +1,32 @@
+; strlen_avx2.asm
+; global functions:
+;   int _strlen_avx2(char *str)
+
 segment .text
-global  _cstring_len_avx2
+global  _strlen_avx2
 
-	; int _cstring_len_avx2(char *str)
+    PAGE_SIZE equ 0x1000
+    VEC_SIZE equ 0x20
 
-_cstring_len_avx2:
+	; int _strlen_avx2(char *str)
+    ;
+    ; arguments:
+    ;   rdi: str, pointer to the first character of the null terminated string
+    ;
+    ; returns:
+    ;   rax: length of the string, not including null terminator
+
+_strlen_avx2:
+
+    ; start the function by loading in the first 
 
 	mov   eax, edi; eax hold lower half of address
 	mov   rdx, rdi; rdx holds full address
 	vpxor xmm0, xmm0, xmm0; ymm0 is zero bytes
 
 	;   use lower half of address to see if near a page boundary
-	and eax, 0xFFF; page_size - 1
-	cmp eax, 0xFDF; page_size - vec_size
+	and eax, PAGE_SIZE - 1
+	cmp eax, PAGE_SIZE - (1 + VEC_SIZE)
 	ja  .cross_page_boundary
 
 	;         compare 0 bytes to char bytes in memory, store results in ymm1
@@ -32,7 +47,7 @@ _cstring_len_avx2:
 .initial_unloop:
 
 	;  Align data to 32 bytes
-	or rdi, 0x1F
+	or rdi, VEC_SIZE - 1
 
 	; initial checks (medium len strings)
 
@@ -56,7 +71,7 @@ _cstring_len_avx2:
 	test      eax, eax
 	jnz       .r3
 
-	jmp .4x_loop
+	jmp .loop_4x
 
 .r0:
 
@@ -94,9 +109,9 @@ _cstring_len_avx2:
 
 	ret
 
-.4x_loop:
+.loop_4x:
 
-	or rdi, 0x7F; vec_size * 4 - 1
+	or rdi, VEC_SIZE * 4 - 1
 
 .cross_page_continue:
 
@@ -111,19 +126,19 @@ _cstring_len_avx2:
 
 	sub  rdi, -0x80
 	test ecx, ecx
-	jz   .4x_loop
+	jz   .loop_4x
 
-.4x_check:
+.check_4x:
 
 	vpcmpeqb  ymm1, ymm1, ymm0
 	vpmovmskb eax, ymm1
 	test      eax, eax
-	jnz       .4x_r0
+	jnz       .r0_4x
 
 	vpcmpeqb  ymm2, ymm2, ymm0
 	vpmovmskb eax, ymm2
 	test      eax, eax
-	jnz       .4x_r1
+	jnz       .r1_4x
 
 	vpcmpeqb  ymm3, ymm3, ymm0
 	vpmovmskb eax, ymm3
@@ -138,7 +153,7 @@ _cstring_len_avx2:
 
 	ret
 
-.4x_r0:
+.r0_4x:
 
 	tzcnt eax, eax
 	sub   rdi, 0x7F
@@ -147,7 +162,7 @@ _cstring_len_avx2:
 
 	ret
 
-.4x_r1:
+.r1_4x:
 
 	tzcnt eax, eax
 	sub   rdi, 0x5F
